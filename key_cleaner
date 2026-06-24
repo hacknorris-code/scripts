@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+DEVICE="/dev/input/event23"
+MINUTES=2
+
+sudo evtest --grab "$DEVICE" >/dev/null 2>&1 &
+GRAB_PID=$!
+
+cleanup() {
+    kill "$GRAB_PID" 2>/dev/null
+    echo
+}
+trap cleanup EXIT
+
+for ((m=MINUTES; m>0; m--)); do
+    printf '\r\033[31mKeyboard locked — %2d minute%s remaining\033[0m' \
+        "$m" \
+        $([ "$m" -eq 1 ] && echo "" || echo "s")
+    sleep 60
+done
+
+printf '\r\033[32mKeyboard unlocked.                    \033[0m\n'
